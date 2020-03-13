@@ -1,0 +1,206 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+
+        function loaddata() {
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/admin/showemployees`);
+            studentdata
+                .then(value => {
+                    getspecialization(value);
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+
+       
+
+        function getspecialization(data) {
+            let name = document.getElementById("specialization");
+            const get = JSON.parse(JSON.stringify(data));
+            for (let i = 0; i < get.length; i++) {
+                const getuni = document.createElement("OPTION");
+                getuni.innerHTML = get[i].specialization;
+                getuni.value = get[i].specialization;
+                name.options.add(getuni);
+            }
+            const options = []
+            document.querySelectorAll('#specialization > option').forEach((option) => {
+                if (options.includes(option.value)) option.remove()
+                else options.push(option.value)
+            })
+        }
+ function showspecialization(value) {
+           let specialization = document.getElementById("specialization").value;
+            const getPromise = ajaxpromises("GET", `http://localhost:4000/admin/showspecialization?specialization=${specialization}`);            getPromise
+                .then((details) => {
+                    const data = JSON.parse(JSON.stringify(details));
+                    [data].map(rec => {
+                        let question = document.getElementById("email").value = rec.email;
+                        var select = document.getElementById("email");
+                        var length = select.options.length;
+                        for (i = 0; i < length; i++) {
+                            select.options[i] = null;
+                        }
+                        for (let i = 0; i < data.length; i++) {
+                           const email = new Option(data[i].email);
+                            $("#email").append(email);
+                        }
+                        const options = []
+                        document.querySelectorAll('#email > option').forEach((option) => {
+                            if (options.includes(option.value)) option.remove()
+                            else options.push(option.value)
+                        })
+                    })
+                    loaddata();
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+        
+        // function showspecialization(value) {
+        //     let specialization = document.getElementById("specialization").value;
+        //     const getPromise = ajaxpromises("GET", `http://localhost:4000/admin/showspecialization?specialization=${specialization}`);
+        //     getPromise
+        //         .then((details) => {
+        //             [details].map(rec => {
+        //                document.getElementById("email").value = rec.email;
+        //             })
+        //             loaddata();
+        //         })
+        //         .catch(err => {
+        //             alert(err.message);
+        //         })
+        // }
+
+        // function sendmail() {
+        //     const specialization = document.getElementById("specialization").value;
+        //     const email = document.getElementById("email").value;
+        //     const subject = document.getElementById("subject").value;
+        //     const message = document.getElementById("message").value;
+        //     const maildata = ajaxpromises("POST", `http://localhost:4000/admin/sendmail`,
+        //     JSON.stringify({specialization, email, subject,message }));
+        //     maildata
+        //         .then(value => {
+        //             alert("Message is send to your email")
+        //             cleardata();
+        //         })
+        //         .catch(err => {
+        //             alert(err.message);
+        //         })
+        // }
+        function sendmail() {
+            const specialization = document.getElementById("specialization").value;
+            const email = document.getElementById("email").value;
+            const subject = document.getElementById("subject").value;
+            const message = document.getElementById("message").value;
+            const image = document.getElementById("image").files;
+            if (image.length > 0) {
+                var imageToLoad = image[0];
+                var imageReader = new FileReader();
+                imageReader.onload = function (fileLoadedEvent) {
+                    const imagepath = fileLoadedEvent.target.result;
+                    const employeedata = ajaxpromises("POST", "http://localhost:4000/admin/sendmail",
+                   JSON.stringify({ specialization, email, subject,message,image:imagepath}));
+                   employeedata
+                        .then(value => {
+                            alert("Message is send to your email")
+                            cleardata();;
+                        })
+                        .catch(err => {
+                            alert(err.message);
+                        })
+                }
+                imageReader.readAsDataURL(imageToLoad);
+            }
+        }
+        function cleardata(){
+            document.getElementById("specialization").value="";
+            document.getElementById("subject").value="";
+            document.getElementById("email").value="";
+            document.getElementById("message").value="";
+            document.getElementById("image").value="";
+        }
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+        
+    </style>
+</head>
+
+<body onload="loaddata()" style="background-color:transparent;"><br>
+    <div style="color: rgb(226, 221, 221);text-align: center;">
+        <h3><b>Send Mail</b></h3>
+    </div><br>
+    <div>
+        <input type="hidden" id="id">
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4"><label>Specialization:</label>
+                <select name="select" id="specialization" class="form-control" onchange="showspecialization(value)">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Subject:</label>
+                <input type="text" id="subject" class="form-control">
+            </div>
+            <div class="col-sm-2"></div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <!-- <div class="col-sm-3"><label>Mail:</label>
+                <textarea name="email" id="email" rows="4" class="form-control"></textarea>
+            </div> -->
+            <div class="col-sm-4"><label>Mail:</label>
+                <select name="select" id="email" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Message:</label>
+                <textarea name="message" id="message" rows="1" class="form-control"></textarea>
+            </div>
+            <div class="col-sm-2"></div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-3"><label>Image/File:</label>
+                <input type="file" id="image" class="form-control">
+            </div>
+            <div class="col-sm-2"></div>
+            <div class="col-sm-3" style="margin-top: 32px;">
+                <button type="button" class="btn btn-success" onclick="sendmail()">Send Mail</button>
+            </div>
+        </div><br>
+    </div>
+    
+</body>
+
+</html>

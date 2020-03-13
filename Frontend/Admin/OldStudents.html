@@ -1,0 +1,159 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
+    <script>
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function loaddata() {
+            const studentdata = ajaxpromises("GET", "http://localhost:4000/admin/showstudent");
+            studentdata
+                .then(value => {
+                    showdetails(value);
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+
+        function showdetails(students) {
+            if (students.length > 0) {
+                const tableHeaderString = `<tr style="background-color:rgb(44, 126, 194);color:white;"><th>S.No</th><th>Student Name</th><th>Branch</th><th>Year</th><th>Mobile No</th><th>Email ID</th><th>Seeking For</th><th>Date</th><th>Follow Up</th> </tr>`;
+                var tableRowString = '';
+                students.map((student, index) => {
+                    tableRowString += `<tr><td>${index + 1}</td><td>${student.studentname}</td><td>${student.branch}</td><td>${student.parsuing}</td><td>${student.mobile}</td><td>${student.email}</td><td>${student.seeking}</td><td>${student.date}</td><td>${student.followup}</td></tr>`
+                });
+                const tableString = `<table class="table table-bordered" id="download">${tableHeaderString}<tbody id="Searchdata">${tableRowString}</tbody></table>`;
+                document.getElementById("table").innerHTML = tableString;
+
+            }
+            else {
+                const tableHeaderString = `<tr style="background-color:rgb(44, 126, 194);color:white;"><th>S.No</th><th>Student Name</th><th>Branch</th><th>Year</th><th>Mobile No</th><th>Email ID</th><th>Seeking For</th><th>Date</th><th>Follow Up</th><th>Action</th></tr>`;
+                let tableRowString = `<tr style="text-align:center;"><td colspan="10">No data</td></tr>`
+                table1 = `<table class="table table-bordered">${tableHeaderString}${tableRowString}</table>`
+                document.getElementById("table").innerHTML = table1;
+            }
+        }
+      
+        function Export() {
+            html2canvas(document.getElementById('download'), {
+                onrendered: function (canvas) {
+                    var data = canvas.toDataURL();
+                    var docDefinition = {
+                        content: [{
+                            image: data,
+                            width: 500
+                        }]
+                    };
+                    pdfMake.createPdf(docDefinition).download("OldStudentsList.pdf");
+                }
+            });
+        }
+        function Print() {
+            window.print();
+        }
+
+
+        var $colNumber;
+        $("document").ready(function () {
+            $(function () {
+
+                $(":button").click(function () {
+                    $colNumber = (this.id);
+                    $('#download tr *:nth-child(' + $colNumber + ')').toggle();
+
+                });
+
+            });
+
+        });
+        $(document).ready(function () {
+            $("#search").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#Searchdata tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+    <style>
+        tr {
+            background-color: #D0D2D2;
+            color: black;
+        }
+
+        tr:hover {
+            background-color: rgb(43, 46, 66);
+            color: white;
+            box-shadow: 2px 2px 4px 4px black;
+        }
+        .btn {
+            background-color: transparent;
+        }
+
+        .hidebutton {
+            margin: 5px;
+            width: 200px;
+            color: black;
+        }
+    </style>
+</head>
+
+<body onload="loaddata() " style="background-color:transparent;"><br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col col-sm-1">
+                <button type="button" class="btn btn-success" id="btnExport" onclick="Export()">Download</button>
+            </div>
+            <div class="col col-sm-1">
+                <button type="button" class="btn btn-success" onclick="Print()" style="width:100px">Print</button>
+            </div>
+            <div class="col col-sm-1">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                        Column visibility
+                    </button>
+                    <div class="dropdown-menu" style="text-align: center;">
+                        <button type="button" class="btn btn-success hidebutton" id="4">Year</button>
+                        <button type="button" class="btn btn-success hidebutton" id="7">Seeking For</button>
+                        <button type="button" class="btn btn-success hidebutton" id="8">Date</button>
+                        <button type="button" class="btn btn-success hidebutton" id="9">Follow up</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6"></div>
+            <div class="col-sm-3">
+                <input type="text" placeholder="Search..." id="search" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="table"></div>
+            </div>
+        </div><br>
+    </div>
+</body>
+
+</html>

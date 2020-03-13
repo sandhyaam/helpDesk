@@ -1,0 +1,202 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        const id = sessionStorage.getItem('id');
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function loaddata() {
+            document.getElementById("id").value = id
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/admin/viewstudent?id=${id}`);
+            studentdata
+                .then(value => {
+                    [value].map(student => {
+                        document.getElementById("id").value = student._id;
+                        document.getElementById("studentname").value = student.studentname;
+                        document.getElementById("collegename").value = student.collegename;
+                        document.getElementById("fathername").value = student.fathername;
+                        document.getElementById("fatheroccupation").value = student.fatheroccupation;
+                        document.getElementById("rollno").value = student.rollno;
+                        document.getElementById("branch").value = student.branch;
+                        document.getElementById("parsuing").value = student.parsuing;
+                        (student.gender == 'male') ? document.getElementById("male").checked = true : document.getElementById("female").checked = true;
+                        document.getElementById("mobile").value = student.mobile;
+                        document.getElementById("altmobile").value = student.altmobile;
+                        document.getElementById("dob").value = student.dob;
+                        document.getElementById("email").value = student.email;
+                        document.getElementById("address").value = student.address;
+                        document.getElementById("seeking").value = student.seeking;
+                        document.getElementById("date").value = student.date;
+                        document.getElementById("followup").value = student.followup;
+                    })
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+
+        function updatestudent() {
+            const id = document.getElementById("id").value;
+            const studentname = document.getElementById("studentname").value;
+            const collegename = document.getElementById("collegename").value;
+            const fathername = document.getElementById("fathername").value;
+            const fatheroccupation = document.getElementById("fatheroccupation").value;
+            const rollno = document.getElementById("rollno").value;
+            const branch = document.getElementById("branch").value;
+            const parsuing = document.getElementById("parsuing").value;
+            const gender = (document.getElementById("male").checked == true) ? "male" : "female";
+            const mobile = document.getElementById("mobile").value;
+            const altmobile = document.getElementById("altmobile").value;
+            const dob = document.getElementById("dob").value;
+            const email = document.getElementById("email").value;
+            const address = document.getElementById("address").value;
+            const seeking = document.getElementById("seeking").value;
+            const date = document.getElementById("date").value;
+            const followup = document.getElementById("followup").value;
+            const studentdata = ajaxpromises("PUT", `http://localhost:4000/admin/updatestudent/${id}`,
+                JSON.stringify({ studentname, collegename, fathername, fatheroccupation, rollno, branch, parsuing, gender, mobile, altmobile, dob, email, address, seeking, date, followup }));
+            studentdata
+                .then(value => {
+                    alert("Updated Successfully");
+                    window.location.href = "/admin/coignwalkin"
+                    cleardata();
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+
+        function cleardata() {
+            document.getElementById("studentname").value = "";
+            document.getElementById("collegename").value = "";
+            document.getElementById("fathername").value = "";
+            document.getElementById("fatheroccupation").value = "";
+            document.getElementById("rollno").value = "";
+            document.getElementById("branch").value = "";
+            document.getElementById("parsuing").value = "";
+            document.getElementById("male").checked = "";
+            document.getElementById("female").checked = "";
+            document.getElementById("mobile").value = "";
+            document.getElementById("altmobile").value = "";
+            document.getElementById("dob").value = "";
+            document.getElementById("email").value = "";
+            document.getElementById("address").value = "";
+            document.getElementById("seeking").value = "";
+            document.getElementById("date").value = "";
+            document.getElementById("followup").value = "";
+
+        }
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+    </style>
+</head>
+
+<body onload="loaddata()" style="background-color:transparent;"><br>
+    <div>
+        <input type="hidden" id="id">
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3"><label>Student Name:</label>
+                <input type="text" id="studentname" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>College Name:</label>
+                <input type="text" id="collegename" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Father Name:</label>
+                <input type="text" id="fathername" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Father Occupation:</label>
+                <input type="text" id="fatheroccupation" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-3"><label>Roll No / H.T No:</label>
+                <input type="text" id="rollno" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Branch:</label>
+                <select name="select" id="branch" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>CSE</option>
+                    <option>ECE</option>
+                    <option>EEE</option>
+                    <option>CIVIL</option>
+                    <option>MECH</option>
+                    <option>IT</option>
+                    <option>MBA</option>
+                    <option>MCA</option>
+                    <option>SSC</option>
+                    <option>Others</option>
+                </select>
+            </div>
+            <div class="col-sm-3"><label>Parsuing/Completed(Year):</label>
+                <input type="text" id="parsuing" class="form-control">
+            </div>
+            <div class="col-sm-3"> <label>Gender:</label><br>
+                <input type="radio" id="male" name="gender" value="male"><label style="color:white">Male</label>
+                <input type="radio" id="female" name="gender" value="female"><label style="color:white">Female</label>
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-3"><label>Mobile No:</label>
+                <input type="text" id="mobile" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Alt Mobile No:</label>
+                <input type="text" id="altmobile" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Date Of Birth:</label>
+                <input type="date" id="dob" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Email Id:</label>
+                <input type="text" id="email" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-3"><label>Address</label>
+                <textarea name="address" id="address" rows="1" class="form-control"></textarea>
+            </div>
+            <div class="col-sm-3"><label>Seeking For:</label>
+                <input type="text" id="seeking" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Date:</label>
+                <input type="text" id="date" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Follow Up:</label>
+                <input type="text" id="followup" class="form-control">
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-success" onclick="updatestudent()">Update</button>
+            </div>
+            <div class="col-sm-6"></div>
+        </div><br><br>
+    </div>
+</body>
+
+</html>

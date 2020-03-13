@@ -1,0 +1,131 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(this.responseText);
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function adminlogin() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/Admin/adminlogin?username=${username}&password=${password}`);
+            studentdata
+                .then(value => {
+                    if (value == "" || value == null) {
+                        alert("login failed");
+                    }
+                    else {
+                        const data = JSON.parse(value);
+                        const users = [data].map(record => {
+                            return record;
+                        });
+                        users.map(login => {
+                            sessionStorage.setItem('adminid', login._id);
+                            sessionStorage.setItem('email', login.email);
+                            window.top.location.href="admin"
+                        })
+                    }
+                    cleardata();
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+        function cleardata() {
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+        }
+    </script>
+    <style>
+        .inputWithIcon input[type="text"],
+        [type="password"] {
+            padding-left: 40px;
+            border-radius: 20px;
+        }
+
+        .inputWithIcon {
+            position: relative;
+        }
+
+        .inputWithIcon i {
+            position: absolute;
+            left: 0;
+            top: 3px;
+            padding: 9px 8px;
+            color: #aaa;
+            transition: 0.3s;
+        }
+        
+    </style>
+</head>
+
+<body style="background-color:transparent;"><br><br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-3" style="border-radius: 10px;border: 1px solid rgb(132, 161, 138);"><br>
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-10">
+                        <center>
+                            <h3 style="color:white"><b>Admin Login</b></h3><br>
+                        </center>
+                        <div class="inputWithIcon">
+                            <input type="text" placeholder="Username" id="username" class="form-control">
+                            <i class="fa fa-user fa-lg fa-fw" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-10">
+                        <div class="inputWithIcon">
+                            <input type="password" placeholder="password" id="password" class="form-control">
+                            <i class="fa fa-lock fa-lg fa-fw" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-4">
+                        <div class="inputWithIcon">
+                            <button type="button" class="btn btn-success" onclick="adminlogin()"><b>Login</b></button>
+                        </div>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-6"></div>
+                    <div class="col-sm-6">
+                        <a href="http://localhost:3000/admin/forgotpassword" style="color: white;">forgot password</a>
+                    </div>
+                </div><br>
+            </div>
+            <div class="col-sm-5"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>

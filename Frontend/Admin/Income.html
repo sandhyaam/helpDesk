@@ -1,0 +1,150 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function loaddata() {
+            var d = new Date();
+            document.getElementById("date").value = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+        }
+
+       
+        function addincome() {
+            const category = document.getElementById("category").value;
+            const subcategory = document.getElementById("subcategory").value;
+            const payeename = document.getElementById("payeename").value;
+            const amount = document.getElementById("amount").value;
+            const date = document.getElementById("date").value;
+            const description = document.getElementById("description").value;
+            const towards = document.getElementById("towards").value;
+            const payment = (document.getElementById("cash").checked == true) ? "Cash" : "Cheque";
+            const image = document.getElementById("image").files;
+            const type="income";
+            if (image.length > 0) {
+                var imageToLoad = image[0];
+                var imageReader = new FileReader();
+                imageReader.onload = function (fileLoadedEvent) {
+                    const imagepath = fileLoadedEvent.target.result;
+                    const incomedata = ajaxpromises("POST", "http://localhost:4000/admin/addincome",
+                   JSON.stringify({ category,subcategory,payeename,amount,date,image:imagepath,description,towards,payment,type }));
+                   incomedata
+                        .then(value => {
+                            alert("Added Successfully");
+                            cleardata();
+                        })
+                        .catch(err => {
+                            alert(err.message);
+                        })
+                }
+                imageReader.readAsDataURL(imageToLoad);
+            }
+        }
+        function cleardata() {
+            document.getElementById("category").value = "";
+            document.getElementById("subcategory").value = "";
+            document.getElementById("payeename").value = "";
+            document.getElementById("amount").value = "";
+            document.getElementById("date").value = "";
+            document.getElementById("image").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("towards").value = "";
+            document.getElementById("cash").checked = "";
+            // document.getElementById("cheque").checked = "";
+        }
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+    </style>
+</head>
+
+<body onload="loaddata()" style="background-color:transparent;"><br>
+
+    <div style="color: rgb(226, 221, 221);text-align: center;">
+        <h3><b>Income Details</b></h3>
+    </div><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4"><label>Category:</label>
+                <select name="select" id="category" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>TPT</option>
+                    <option>MPT</option>
+                    <option>Bulk SMS</option>
+                    <option>Website Development</option>
+                    <option>Software Development</option>
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Sub Category:</label>
+                <select name="select" id="subcategory" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>Full Stack</option>
+                    <option>Dot Net</option>
+                    <option>Android</option>
+                    <option>Java</option>
+                    <option>C / C++</option>
+                    <option>Other</option>
+
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Payee Name:</label>
+                <input type="text" id="payeename" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-4"><label>Amount:</label>
+                <input type="text" id="amount" class="form-control">
+            </div>
+            <div class="col-sm-4"><label>Date:</label>
+                <input type="date" id="date" class="form-control">
+            </div>
+            <div class="col-sm-4"><label>Proof</label>
+                <input type="file" id="image" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-4"><label>Description:</label>
+                <textarea name="description" id="description" rows="1" class="form-control"></textarea>
+            </div>
+            <div class="col-sm-4"><label>Towards</label>
+                <input type="text" id="towards" class="form-control">
+            </div>
+            <div class="col-sm-4"><label>Payment:</label><br>
+                <input type="radio" name="payment" id="cash"><label style="color:white">Cash</label>
+                <input type="radio" name="payment" id="cheque "><label style="color:white">Cheque</label>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-success" onclick="addincome()">Proceed To Pay</button>
+            </div>
+            <div class="col-sm-4"></div>
+        </div><br><br>
+    </div>
+</body>
+
+</html>

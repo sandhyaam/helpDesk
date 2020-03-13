@@ -1,0 +1,191 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script>
+       $(function () {
+           $('a').each(function () {
+               if ($(this).prop('href') == window.location.href) {
+                   $(this).addClass('current');
+               }
+           });
+       });
+   </script>
+  <style>
+        body {
+            margin: 0;
+        }
+
+        #header {
+            padding: 5px;
+            color: rgb(4, 0, 61);
+            background-color: #F0F3F4;
+            cursor: default;
+        }
+
+        .navbar-inverse {
+            border-bottom: 2px solid rgb(201, 199, 199);
+            border-top: 2px solid rgb(201, 199, 199);
+            background-color: #002446;
+            box-shadow: 2px 2px 4px 4px black;
+        }
+
+        .bgimg {
+            position: relative;
+
+        }
+
+        .bgimg .content {
+            position: absolute;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: #f1f1f1;
+            width: 100%;
+            height: 100%;
+
+        }
+        .nav-item:hover {
+            background-color: rgba(179, 27, 0, 0.986);
+            box-shadow: 2px 2px 4px 4px white;
+        }
+        #myDIV {
+            animation: mymove 2s infinite;
+        }
+
+        .dropdown-menu li a:hover {
+            border-bottom: 3px solid red;
+        }
+        @keyframes mymove {
+            50% {
+                text-shadow: 10px 20px 20px black;
+            }
+        }
+
+        /* #loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 100px;
+            height: 100px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        } */
+    </style>
+</head>
+
+<body>
+    <div id="header">
+        <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-1">
+                <img src="c2.png" style="width: 80px;height: 70px;float: left;border-radius: 10px;">
+            </div>
+            <div class="col-sm-8">
+                <h1><b style="font-family:'Times New Roman', Times, serif;" id="myDIV">Coign Education & IT Services</b>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <nav class="navbar-inverse">
+        <div class="menu-content">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"></a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar" style="font-size:14px;">
+                <ul class="nav navbar-nav" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" href="#" style="color:white;">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="http://localhost:3000/admin/coignwalkin"
+                         target="iframe" style="color:white;">Coign walk-in</a></li>                  
+                    <li class="nav-item"><a class="dropdown-toggle" data-toggle="dropdown" href="#"
+                            style="color:white;">Batches <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="http://localhost:3000/admin/addbatch" target="iframe"><b>Add New Batch</b></a>
+                            </li>
+                            <li><a href="http://localhost:3000/admin/runningbatches" target="iframe"><b>Running
+                                        Batches</b></a></li>
+                            <li><a href="http://localhost:3000/admin/completedbatches" target="iframe"><b>Completed
+                                        Batches</b></a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="dropdown-toggle" data-toggle="dropdown" href="#"
+                            style="color:white;">Students <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="http://localhost:3000/admin/entrolledstudents" target="iframe">
+                                <b>Entrolled Students</b></a></li>
+                            <li><a href="http://localhost:3000/admin/viewnotintrestedstudents" target="iframe">
+                                <b>Not Intrested Students</b></a></li>
+                            <li><a href="http://localhost:3000/admin/oldstudents" target="iframe"><b>Old Students</b></a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/duepaymentdetails"
+                            target="iframe" style="color:white;">Due Amounts</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/income"
+                            target="iframe" style="color:white;">Income</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/expenses"
+                            target="iframe" style="color:white;">Expenses</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/employeedetails"
+                            target="iframe" style="color:white;">Employees</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/mails"
+                            target="iframe" style="color:white;">Mails</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/reports"
+                            target="iframe" style="color:white;">Reports</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000/admin/changepassword"
+                            target="iframe" style="color:white;">Change Password</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="http://localhost:3000"
+                            style="color:white;">LogOut</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="bgimg">
+        <img src="c1.jfif" style="width:100%;height:78.6%;">
+        <div class="content">
+            <div class="container-fluid">
+                <iframe src="" id="iframe" name="iframe"
+                    style="height:100%;width:100%;border:none;margin-left:5px;"></iframe>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="container">
+        <div class="modal fade" id="myModal">
+            <div class="modal-body"><br><br><br><br><br>
+                <center style="color: white;">
+                    <div id="loader"></div>Loading....
+                </center><br><br><br><br><br>
+                <div><img src="Loading" alt=""></div>
+            </div>
+        </div>
+    </div> -->
+    </div>
+</body>
+
+</html>

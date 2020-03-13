@@ -1,0 +1,165 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        const id = sessionStorage.getItem('id');
+
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(this.responseText);
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function viewstudents() {
+            document.getElementById("id").value = id
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/admin/viewstudent?id=${id}`);
+            studentdata
+                .then(value => {
+                    const data=JSON.parse(value);
+                    [data].map(student => {
+                        document.getElementById("id").value = student._id;
+                        document.getElementById("studentname").value = student.studentname;
+                        document.getElementById("collegename").value = student.collegename;
+                        document.getElementById("fathername").value = student.fathername;
+                        document.getElementById("fatheroccupation").value = student.fatheroccupation;
+                        document.getElementById("rollno").value = student.rollno;
+                        document.getElementById("branch").value = student.branch;
+                        document.getElementById("parsuing").value = student.parsuing;
+                        (student.gender == 'male') ? document.getElementById("male").checked = true : document.getElementById("female").checked = true;
+                        document.getElementById("mobile").value = student.mobile;
+                        document.getElementById("altmobile").value = student.altmobile;
+                        document.getElementById("dob").value = student.dob;
+                        document.getElementById("email").value = student.email;
+                        document.getElementById("address").value = student.address;
+                        document.getElementById("seeking").value = student.seeking;
+                        document.getElementById("date").value = student.date;
+                        document.getElementById("followup").value = student.followup;
+                    })
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+        
+
+        function deletestudent() {
+            const studentdata = ajaxpromises("DELETE", `http://localhost:4000/admin/deletestudent?id=${id}`);
+            studentdata
+                .then(value => {
+                    viewstudents();
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+        function notinstrestedstudents() {
+            const studentname = document.getElementById("studentname").value;
+            const collegename = document.getElementById("collegename").value;
+            const fathername = document.getElementById("fathername").value;
+            const fatheroccupation = document.getElementById("fatheroccupation").value;
+            const rollno = document.getElementById("rollno").value;
+            const branch = document.getElementById("branch").value;
+            const parsuing = document.getElementById("parsuing").value;
+            const gender = (document.getElementById("male").checked == true) ? "male" : "female";
+            const mobile = document.getElementById("mobile").value;
+            const altmobile = document.getElementById("altmobile").value;
+            const dob = document.getElementById("dob").value;
+            const email = document.getElementById("email").value;
+            const address = document.getElementById("address").value;
+            const seeking = document.getElementById("seeking").value;
+            const date = document.getElementById("date").value;
+            const followup = document.getElementById("followup").value;
+            const reason = document.getElementById("reason").value;
+            const studentdata = ajaxpromises("POST", "http://localhost:4000/admin/notintrestedstudents",
+            JSON.stringify({ studentname, collegename, fathername, fatheroccupation, rollno, branch, parsuing,gender, mobile, altmobile, dob, email, address, seeking, date, followup,reason }));
+            studentdata
+                .then(value => {
+                    alert("Cancelled");
+                    deletestudent()
+                    window.location.href = "/admin/coignwalkin"
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+
+
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+    </style>
+</head>
+
+<body onload="viewstudents()" style="background-color:transparent;"><br>
+    <div>
+        <input type="hidden" id="id">
+        <input type="hidden" id="collegename">
+        <input type="hidden" id="fathername">
+        <input type="hidden" id="fatheroccupation">
+        <input type="hidden" id="rollno">
+        <input type="hidden" id="branch">
+        <input type="hidden" id="parsuing">
+        <input type="hidden" id="altmobile">
+        <input type="hidden" id="dob">
+        <input type="hidden" id="email">
+        <input type="hidden" id="address">
+        <input type="hidden" id="seeking">
+        <input type="hidden" id="date">
+        <input type="hidden" id="followup">
+        <input type="hidden" id="male" name="gender" value="male">
+        <input type="hidden" id="female" name="gender" value="female">
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4"><label>Student Name:</label>
+                <input type="text" id="studentname" class="form-control" disabled
+                    style="background-color: rgb(177, 174, 174);color: black;">
+            </div>
+            <div class="col-sm-4"></div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4"><label>Mobile No:</label>
+                <input type="text" id="mobile" class="form-control" disabled
+                    style="background-color: rgb(177, 174, 174);color: black;">
+            </div>
+            <div class="col-sm-4"></div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4"><label>Reason:</label>
+                <textarea name="reason" id="reason" cols="10" rows="5" class="form-control"></textarea>
+            </div>
+            <div class="col-sm-4"></div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-success" onclick="notinstrestedstudents()">Submit</button>
+            </div>
+            <div class="col-sm-6"></div>
+        </div><br><br>
+    </div>
+</body>
+
+</html>

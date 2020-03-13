@@ -1,0 +1,194 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function addemployee() {
+            const employeeid = document.getElementById("employeeid").value;
+            const specialization = document.getElementById("specialization").value;
+            const fullname = document.getElementById("fullname").value;
+            const fathername = document.getElementById("fathername").value;
+            const designation = document.getElementById("designation").value;
+            const mobile = document.getElementById("mobile").value;
+            const email = document.getElementById("email").value;
+            const dob = document.getElementById("dob").value;
+            const dateofjoin = document.getElementById("dateofjoin").value;
+            const bloodgroup = document.getElementById("bloodgroup").value;
+            const address = document.getElementById("address").value;
+            const image = document.getElementById("image").files;
+            const status="Active";
+            if (image.length > 0) {
+                var imageToLoad = image[0];
+                var imageReader = new FileReader();
+                imageReader.onload = function (fileLoadedEvent) {
+                    const imagepath = fileLoadedEvent.target.result;
+                    const employeedata = ajaxpromises("POST", "http://localhost:4000/admin/addemployee",
+                   JSON.stringify({ employeeid,specialization,fullname,fathername,designation,mobile,email,dob,dateofjoin,bloodgroup,image:imagepath,address,status }));
+                   employeedata
+                        .then(value => {
+                            alert("Added Successfully");
+                           window.location.href="employeedetails";
+                        })
+                        .catch(err => {
+                            alert(err.message);
+                        })
+                }
+                imageReader.readAsDataURL(imageToLoad);
+            }
+        }
+     
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+           #loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 100px;
+            height: 100px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body style="background-color:transparent;"><br>
+    <div style="color: rgb(226, 221, 221);text-align: center;">
+        <h3><b>Add Employee</b></h3>
+    </div><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3"><label>Employee ID:</label>
+                <input type="text" id="employeeid" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Specialization:</label>
+                <select name="select" id="specialization" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>Full Stack</option>
+                    <option>Dot Net</option>
+                    <option>Android</option>
+                    <option>Java</option>
+                    <option>PHP</option>
+                    <option>Administration</option>
+                    <option>BDE</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="col-sm-3"><label>Full Name:</label>
+                <input type="text" id="fullname" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Father Name:</label>
+                <input type="text" id="fathername" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-3"><label>Designation :</label>
+                <select name="select" id="designation" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>Sr.Software Engineer</option>
+                    <option>Software Engineer</option>
+                    <option>Trainee Software Engineer</option>
+                    <option>Administration</option>
+                    <option>BDE</option>
+                    <option>Intership</option>
+                </select>
+            </div>
+            <div class="col-sm-3"><label>Mobile No:</label>
+                <input type="text" id="mobile" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Email Id</label>
+                <input type="email" id="email" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Date Of Birth:</label>
+                <input type="date" id="dob" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-3"><label>Date Of Join:</label>
+                <input type="date" id="dateofjoin" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Blood Group :</label>
+                <select name="select" id="bloodgroup" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>A+ve</option>
+                    <option>A-ve</option>
+                    <option>B+ve</option>
+                    <option>B-ve</option>
+                    <option>O+ve</option>
+                    <option>O-ve</option>
+                    <option>AB+ve</option>
+                    <option>AB-ve</option>
+                </select>
+            </div>
+            <div class="col-sm-3"><label>Image:</label>
+                <input type="file" id="image" class="form-control">
+            </div>
+            <div class="col-sm-3"><label>Address:</label>
+                <textarea name="address" id="address" rows="1" class="form-control"></textarea>
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-3">
+                <button type="button" class="btn btn-success" onclick="addemployee()" data-toggle="modal" data-target="#myModal">Submit</button>
+            </div>
+            <div class="col-sm-4"></div>
+        </div><br><br>
+    </div>
+    <div class="container">
+        <div class="modal fade" id="myModal">
+            <div class="modal-body"><br><br><br><br><br>
+                <center style="color: white;">
+                    <div id="loader"></div>Loading....
+                </center><br><br><br><br><br>
+                <div><img src="Loading" alt=""></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,165 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        const id = sessionStorage.getItem('batchid');
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function loaddata() {
+            document.getElementById("id").value = id
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/admin/viewbatch?id=${id}`);
+            studentdata
+                .then(value => {
+                    [value].map(student => {
+                        document.getElementById("id").value = student._id;
+                        document.getElementById("batch").value = student.batch;
+                        document.getElementById("timings").value = student.timings;
+                        document.getElementById("fromdate").value = student.fromdate;
+                        document.getElementById("todate").value = student.todate;
+                        document.getElementById("trainername").value = student.trainername;
+                        document.getElementById("technology").value = student.technology;
+
+                    })
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+
+        function updatebatch() {
+            const id = document.getElementById("id").value;
+            const batch = document.getElementById("batch").value;
+            const timings = document.getElementById("timings").value;
+            const fromdate = document.getElementById("fromdate").value;
+            const todate = document.getElementById("todate").value;
+            const trainername = document.getElementById("trainername").value;
+            const technology = document.getElementById("technology").value;
+            const studentdata = ajaxpromises("PUT", `http://localhost:4000/admin/updatebatch/${id}`,
+                JSON.stringify({ batch, timings, fromdate, todate, trainername, technology }));
+            studentdata
+                .then(value => {
+                    sessionStorage.setItem("batchid",id)
+                    console.log(id);
+                    alert("Updated Successfully");
+                    // sessionStorage.setItem("batchid",id)
+                    window.location.href = "/admin/addbatch"
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+
+        tr {
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #D0D2D2;
+            color: black;
+            box-shadow: 2px 2px 4px 4px black;
+
+        }
+    </style>
+</head>
+
+<body onload="loaddata()" style="background-color:transparent;"><br>
+    <div>
+        <input type="hidden" id="id">
+    </div>
+    <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-1"><label>Batch_Name:</label></div>
+                <div class="col-sm-3">
+                    <input type="text" id="batch" class="form-control">
+                </div>
+                <div class="col-sm-4"></div>
+            </div><br>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-1"><label>Timings:</label></div>
+                <div class="col-sm-3">
+                    <input type="text" id="timings" class="form-control">
+                </div>
+                <div class="col-sm-4"></div>
+            </div><br>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-1"><label>From_Date:</label></div>
+                <div class="col-sm-3">
+                    <input type="date" id="fromdate" class="form-control">
+                </div>
+                <div class="col-sm-4"></div>
+            </div><br>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-1"><label>To Date:</label></div>
+                <div class="col-sm-3">
+                    <input type="text" id="todate" class="form-control">
+                </div>
+                <div class="col-sm-4"></div>
+            </div><br>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-1"><label>Trainer_Name:</label></div>
+                <div class="col-sm-3">
+                    <input type="text" id="trainername" class="form-control">
+                </div>
+                <div class="col-sm-4"></div>
+            </div><br>
+            <div class="row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-1"><label>Technology:</label></div>
+                <div class="col-sm-3">
+                    <select name="select" id="technology" class="form-control">
+                        <option disabled="disabled" selected="selected">--Select--</option>
+                        <option>Full Stack</option>
+                        <option>Dot Net</option>
+                        <option>Java</option>
+                        <option>Android</option>
+                        <option>PHP</option>
+                        <option>C++/OOPS</option>
+                        <option>Others</option>
+                    </select>
+                </div>
+                <div class="col-sm-4"></div>
+            </div><br>
+
+            <div class="row">
+                <div class="col-sm-5"></div>
+                <div class="col-sm-1">
+                    <button type="button" class="btn btn-success" onclick="updatebatch()">Update</button>
+                </div>
+                <div class="col-sm-6"></div>
+            </div><br><br>
+        </div>
+
+</body>
+
+</html>

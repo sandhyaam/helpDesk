@@ -1,0 +1,214 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+         const id = sessionStorage.getItem('id');
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function viewstudents() {
+            document.getElementById("id").value = id
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/admin/viewstudent?id=${id}`);
+            studentdata
+                .then(value => {
+                    [value].map(student => {
+                        document.getElementById("id").value = student._id;
+                        document.getElementById("studentname").value = student.studentname;
+                        document.getElementById("collegename").value = student.collegename;
+                        document.getElementById("fathername").value = student.fathername;
+                        document.getElementById("fatheroccupation").value = student.fatheroccupation;
+                        document.getElementById("rollno").value = student.rollno;
+                        document.getElementById("branch").value = student.branch;
+                        document.getElementById("parsuing").value = student.parsuing;
+                        (student.gender == 'male') ? document.getElementById("male").checked = true : document.getElementById("female").checked = true;
+                        document.getElementById("mobile").value = student.mobile;
+                        document.getElementById("altmobile").value = student.altmobile;
+                        document.getElementById("dob").value = student.dob;
+                        document.getElementById("email").value = student.email;
+                        document.getElementById("address").value = student.address;
+                        document.getElementById("seeking").value = student.seeking;
+                        document.getElementById("date").value = student.date;
+                        document.getElementById("followup").value = student.followup;
+                        var d = new Date();
+                        document.getElementById("date").value = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+                    })
+                    loaddata()
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+        // function deletestudent() {
+        //     const studentdata = ajaxpromises("DELETE", `http://localhost:4000/admin/deletestudent?id=${id}`);
+        //     studentdata
+        //         .then(value => {
+        //             viewstudents();
+        //         })
+        //         .catch(err => {
+        //             alert(err.message);
+        //         })
+        // }
+        function joinstudent() {
+            const email = document.getElementById("email").value;
+            const seeking = document.getElementById("seeking").value;
+            const batch = document.getElementById("batch").value;
+            const batchname = document.getElementById("batchname").value;
+            const studentname = document.getElementById("studentname").value;
+            const mobile = document.getElementById("mobile").value;
+            const trainingtype = document.getElementById("trainingtype").value;
+            const duration = document.getElementById("duration").value;
+            const totalamount = Number(document.getElementById("totalamount").value);
+            const advanceamount = Number(document.getElementById("advanceamount").value);
+            const dueamount = totalamount-advanceamount;
+            const date = document.getElementById("date").value;
+            const studentdata = ajaxpromises("POST", "http://localhost:4000/admin/joinstudents",
+                JSON.stringify({ batch,batchname, studentname, mobile,email,seeking, trainingtype, duration, totalamount, advanceamount,dueamount, date }));
+            studentdata
+                .then(value => {
+                    alert("Joined Successfully");
+                    // deletestudent(); 
+                    window.location.href = "/admin/coignwalkin"
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+
+        function loaddata() {
+            const studentdata = ajaxpromises("GET", "http://localhost:4000/admin/showbatch");
+            studentdata
+                .then(value => {
+                    showdetails(value);
+                    batchnames(value);
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+        function showdetails(data1) {
+            let batchname = document.getElementById("batch");
+            const data = JSON.parse(JSON.stringify(data1));
+            for (let i = 0; i < data.length; i++) {
+                const name = document.createElement("OPTION");
+                name.innerHTML = data[i].batch;
+                name.value = data[i]._id;
+                batchname.add(name);
+            }
+        }
+        function batchnames(data1) {
+            let batchname = document.getElementById("batchname");
+            const data = JSON.parse(JSON.stringify(data1));
+            for (let i = 0; i < data.length; i++) {
+                const name = document.createElement("OPTION");
+                name.innerHTML = data[i].batch;
+                name.value = data[i].batch;
+                batchname.add(name);
+            }
+        }
+       
+
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+    </style>
+</head>
+
+<body onload="viewstudents()" style="background-color:transparent;"><br>
+    <div>
+       <input type="hidden" id="id">
+        <input type="hidden" id="collegename">
+        <input type="hidden" id="fathername">
+        <input type="hidden" id="fatheroccupation">
+        <input type="hidden" id="rollno">
+        <input type="hidden" id="branch">
+        <input type="hidden" id="parsuing">
+        <input type="hidden" id="altmobile">
+        <input type="hidden" id="dob">
+        <input type="hidden" id="email">
+        <input type="hidden" id="address">
+        <input type="hidden" id="seeking">
+        <input type="hidden" id="followup">
+        <input type="hidden" id="male" name="gender" value="male">
+        <input type="hidden" id="female" name="gender" value="female">
+       
+    </div>
+    <div style="color: rgb(226, 221, 221);text-align: center;">
+        <h3><b>Join Students</b></h3>
+    </div><br>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4"><label>Select Batch:</label>
+                <select name="select" id="batch" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Conform Your Batch:</label>
+                <select name="select" id="batchname" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Student Name:</label>
+                <input type="text" id="studentname" class="form-control" disabled style="background-color: rgb(177, 174, 174);">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-4"><label>Mobile No:</label>
+                <input type="text" id="mobile" class="form-control" disabled style="background-color: rgb(177, 174, 174);">
+            </div>
+            <div class="col-sm-4"><label>Training Type:</label>
+                <select name="select" id="trainingtype" class="form-control">
+                    <option disabled="disabled" selected="selected">--Select--</option>
+                    <option>With Project</option>
+                    <option>With Out Project</option>
+                    <option>Only Project</option>
+                    <option>Intership</option>
+                </select>
+            </div>
+            <div class="col-sm-4"><label>Duration</label>
+                <input type="text" id="duration" class="form-control">
+            </div>
+        </div><br>
+        <div class="row">
+            <div class="col-sm-4"><label>Total Amount:</label>
+                <input type="text" id="totalamount" class="form-control">
+            </div>
+            <div class="col-sm-4"><label>Advance Amount</label>
+                <input type="text" id="advanceamount" class="form-control">
+            </div>
+            <div class="col-sm-4"><label>Date:</label>
+                <input type="text" id="date" class="form-control">
+            </div>
+        </div><br>
+
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-1">
+                <button type="button" class="btn btn-success" onclick="joinstudent()">Submit</button>
+            </div>
+            <div class="col-sm-6"></div>
+        </div><br><br>
+    </div>
+</body>
+
+</html>

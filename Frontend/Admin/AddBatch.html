@@ -1,0 +1,263 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    
+    <script>
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function loaddata() {
+                const studentdata = ajaxpromises("GET", "http://localhost:4000/admin/showbatch");
+                studentdata
+                    .then(value => {
+                        showdetails(value);
+                    })
+                    .catch(err => {
+                        alert(err.message);
+                    })
+            }
+        function showdetails(students) {
+            if (students.length > 0) {
+                const tableHeaderString = `<tr style="background-color:rgb(44, 126, 194);color:white;"><th>S.No</th><th>Batch Name</th><th>Timings</th><th>From Date</th><th>To Date</th><th>Trainer</th><th>Technology</th><th>Action</th></tr>`;
+                var tableRowString = '';
+                students.map((student, index) => {
+                    let btnEdit = `<i id="${student._id}" onclick="editstudent('${student._id}')" class="fa fa-pencil" style="font-size:30px;cursor:pointer;color:#ffff00" title="Update Details"></i>`;
+                    tableRowString += `<tr><td>${index + 1}</td><td>${student.batch}</td><td>${student.timings}</td><td>${student.fromdate}</td><td>${student.todate}</td><td>${student.trainername}</td><td>${student.technology}</td><td> ${btnEdit}</td></tr>`
+                });
+                const tableString = `<table class="table table-bordered"  id="download">${tableHeaderString}<tbody id="Searchdata">${tableRowString}</tbody></table>`;
+                document.getElementById("table").innerHTML = tableString;
+
+            }
+            else {
+                const tableHeaderString = `<tr style="background-color:rgb(44, 126, 194);color:white;"><th>S.No</th><th>Batch Name</th><th>Timings</th><th>From Date</th><th>To Date</th><th>Trainer</th><th>Technology</th><th>Action</th></tr>`;
+                let tableRowString = `<tr style="text-align:center;"><td colspan="8">No data</td></tr>`
+                table1 = `<table class="table table-bordered">${tableHeaderString}${tableRowString}</table>`
+                document.getElementById("table").innerHTML = table1;
+            }
+        }
+        function editstudent(_id) {
+           
+            sessionStorage.setItem("batchid", _id)
+            console.log(_id);
+
+            window.location.href = "/admin/updatebatch"
+            // window.location.href = "/admin/duepaymentdetails"
+        }
+
+        function addbatch() {
+            const batch = document.getElementById("batch").value;
+            const timings = document.getElementById("timings").value;
+            const fromdate = document.getElementById("fromdate").value;
+            const todate = document.getElementById("todate").value;
+            const trainername = document.getElementById("trainername").value;
+            const technology = document.getElementById("technology").value;
+            const studentdata = ajaxpromises("POST", "http://localhost:4000/admin/addbatch",
+                JSON.stringify({ batch, timings, fromdate, todate, trainername, technology }));
+            studentdata
+                .then(value => {
+                    alert("Added Successfully");
+                    window.location.href="addbatch"
+                    cleardata();
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        }
+
+        function cleardata() {
+            document.getElementById("timings").value = "";
+            document.getElementById("batch").value = "";
+            document.getElementById("fromdate").value = "";
+            document.getElementById("todate").value = "";
+            document.getElementById("trainername").value = "";
+            document.getElementById("technology").value = "";
+
+        }
+        function Export() {
+            html2canvas(document.getElementById('download'), {
+                onrendered: function (canvas) {
+                    var data = canvas.toDataURL();
+                    var docDefinition = {
+                        content: [{
+                            image: data,
+                            width: 500
+                        }]
+                    };
+                    pdfMake.createPdf(docDefinition).download("BatchDetailsList.pdf");
+                }
+            });
+        }
+        function Print() {
+            window.print();
+        }
+
+
+        var $colNumber;
+        $("document").ready(function () {
+            $(function () {
+
+                $(":button").click(function () {
+                    $colNumber = (this.id);
+                    $('#download tr *:nth-child(' + $colNumber + ')').toggle();
+
+                });
+
+            });
+
+        });
+        $(document).ready(function () {
+            $("#search").on("keyup", function () {
+                var value = $(this).val().toLowerCase();
+                $("#Searchdata tr").filter(function () {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+
+    </script>
+    <style>
+        label {
+            color: rgb(255, 251, 0);
+        }
+        tr {
+            background-color: #D0D2D2;
+            color: black;
+        }
+
+        tr:hover {
+            background-color: rgb(43, 46, 66);
+            color: white;
+            box-shadow: 2px 2px 4px 4px black;
+
+        }
+        .btn {
+            background-color: transparent;
+        }
+
+        .hidebutton {
+            margin: 5px;
+            width: 200px;
+            color: black;
+        }
+    </style>
+</head>
+
+<body onload="loaddata()" style="background-color:transparent;"><br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-3">
+                <div class="row">
+                    <div class="col-sm-4"><label>Batch_Name:</label></div>
+                    <div class="col-sm-8">
+                        <input type="text" id="batch" class="form-control">
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-4"><label>Timings:</label></div>
+                    <div class="col-sm-8">
+                        <input type="text" id="timings" class="form-control">
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-4"><label>From_Date:</label></div>
+                    <div class="col-sm-8">
+                        <input type="date" id="fromdate" class="form-control">
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-4"><label>To Date:</label></div>
+                    <div class="col-sm-8">
+                        <input type="date" id="todate" class="form-control">
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-4"><label>Trainer_Name:</label></div>
+                    <div class="col-sm-8">
+                        <input type="text" id="trainername" class="form-control">
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-4"><label>Technology:</label></div>
+                    <div class="col-sm-8">
+                        <select name="select" id="technology" class="form-control">
+                            <option disabled="disabled" selected="selected">--Select--</option>
+                            <option>Full Stack</option>
+                            <option>Dot Net</option>
+                            <option>Java</option>
+                            <option>Android</option>
+                            <option>PHP</option>
+                            <option>C++/OOPS</option>
+                            <option>Others</option>
+                        </select>
+                    </div>
+                </div><br>
+
+                <div class="row">
+                    <div class="col-sm-5"></div>
+                    <div class="col-sm-1">
+                        <button type="button" class="btn btn-success" onclick="addbatch()">Add</button>
+                    </div>
+                    <div class="col-sm-6"></div>
+                </div><br><br>
+            </div>
+            <div class="col-sm-9">
+                <div class="row">
+                    <div class="col col-sm-2">
+                        <button type="button" class="btn btn-success" id="btnExport" onclick="Export()">Download</button>
+                    </div>
+                    <div class="col col-sm-1">
+                        <button type="button" class="btn btn-success" onclick="Print()">Print</button>
+                    </div>
+                    <div class="col col-sm-1">
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                                Column visibility
+                            </button>
+                            <div class="dropdown-menu" style="text-align: center;">
+                                <button type="button" class="btn btn-success hidebutton" id="4">From Date</button>
+                                <button type="button" class="btn btn-success hidebutton" id="5">Todate</button>
+                                <button type="button" class="btn btn-success hidebutton" id="6">Trainer</button>
+                                <button type="button" class="btn btn-success hidebutton" id="7">Technology</button>
+        
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5"></div>
+                    <div class="col-sm-3">
+                        <input type="text" placeholder="Search..." id="search" class="form-control">
+                    </div>
+                </div><br>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div id="table"></div>
+                    </div>
+                </div><br>
+            </div>
+        </div>
+
+    </div>
+   
+</body>
+
+</html>

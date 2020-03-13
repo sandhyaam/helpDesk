@@ -1,0 +1,93 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script>
+        const batchname = sessionStorage.getItem('batchname');
+        function ajaxpromises(method, url, parameters) {
+            const mypromise = new Promise((resolve, reject) => {
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        resolve(JSON.parse(this.responseText));
+                    }
+                    else if (this.status == 404 || this.status == 500) {
+                        reject({ err: true, message: "not found" });
+                    }
+                }
+                xhttp.open(method, url, true);
+                xhttp.setRequestHeader("Content-type", "application/json");
+                parameters ? xhttp.send(parameters) : xhttp.send();
+            })
+            return mypromise;
+        }
+        function loaddata() {
+            const studentdata = ajaxpromises("GET", `http://localhost:4000/admin/paymentdetails?batchname=${batchname}`);
+            studentdata
+                .then(value => {
+                    showdetails(value);
+                })
+                .catch(err => {
+                    alert(err.message);
+                })
+        };
+
+        function showdetails(students) {
+            if (students.length > 0) {
+                const tableHeaderString = `<tr style="background-color:rgb(44, 126, 194);color:white;"><th>S.No</th><th>Student Name</th><th>Mobile No</th><th>Amount</th><th>Date</th></tr>`;
+                var tableRowString = '';
+                students.map((student, index) => {
+                    tableRowString += `<tr><td>${index + 1}</td><td>${student.studentname}</td><td>${student.mobile}</td><td>${student.amount}</td><td>${student.date}</td></tr>`
+                });
+                const tableString = `<table class="table table-bordered">${tableHeaderString}${tableRowString}</table>`;
+                document.getElementById("table").innerHTML = tableString;
+
+            }
+            else {
+                const tableHeaderString = `<tr style="background-color:rgb(44, 126, 194);color:white;"><th>S.No</th><th>Student Name</th><th>Mobile No</th><th>Email ID</th><th>Seeking For</th><th>Date</th></tr>`;
+                let tableRowString = `<tr style="text-align:center;"><td colspan="9">No data</td></tr>`
+                table1 = `<table class="table table-bordered">${tableHeaderString}${tableRowString}</table>`
+                document.getElementById("table").innerHTML = table1;
+            }
+        }
+        function paymentdetails() {
+            window.location.href = "/admin/runningbatches"
+        }
+
+    </script>
+    <style>
+        tr {
+            background-color: #D0D2D2;
+            color: black;
+        }
+
+        tr:hover {
+            background-color: rgb(43, 46, 66);
+            color: white;
+            box-shadow: 2px 2px 4px 4px black;
+
+        }
+    </style>
+</head>
+
+<body onload="loaddata() " style="background-color:transparent;"><br>
+   <div style="color: rgb(226, 221, 221);text-align: center;">
+       <h3><b>Student Payment Details</b></h3>
+   </div><br>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-12">
+                <div id="table"></div>
+            </div>
+        </div><br>
+    </div>
+    <div style="text-align: center;">
+<button type="button" class="btn btn-success" onclick="paymentdetails()">Back</button>
+    </div>
+</body>
+
+</html>
